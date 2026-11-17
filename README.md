@@ -1,4 +1,4 @@
-# SISMO DATA — Sprint 1: CSV a JSON
+# SISMO DATA — CSV a JSON
 
 Proyecto 03 · Desarrollo de Aplicaciones Web y Móviles
 

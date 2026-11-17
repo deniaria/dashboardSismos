@@ -1,0 +1,2 @@
+# dashboardSismos
+Dashboard sobre sismos

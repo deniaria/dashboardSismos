@@ -55,7 +55,6 @@ export default function Dashboard() {
     <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 } }}>
       <Navbar items={[{ label: 'Indicadores', href: '#indicadores' }, { label: 'Mapa', href: '#mapa' }, { label: 'Gráficos', href: '#graficos' }, { label: 'Registros', href: '#registros' }]} />
       <Typography variant="h5" fontWeight={800} color="#0c2746" sx={{ my: 2 }}>Actividad sísmica mundial</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Datos del archivo USGS almacenado en el repositorio (no se actualizan automáticamente).</Typography>
       {error && <Alert severity="error" sx={{ mb: 2 }}>No se pudo cargar data/all_month.json: {error}. Verifica que estés ejecutando desde la raíz del repositorio.</Alert>}
       {loading ? <Box display="flex" justifyContent="center" py={8}><CircularProgress /></Box> : !error && <>
         <Box id="indicadores" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))' }, gap: 2, mb: 2 }}>

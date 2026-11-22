@@ -1,7 +1,21 @@
+import { useEffect, useState } from 'react';
+
 import { Box, Typography } from '@mui/material';
 import type { ChartPoint } from '../types/earthquake';
 
+const tooltipHeight = 38;
+const tooltipPadding = 10;
+
+const getApproxTextWidth = (text: string, fontSize: number) =>
+  text.length * fontSize * 0.6;
+
 export default function LineChart({ data }: { data: ChartPoint[] }) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    setActiveIndex(null);
+  }, [data]);
+
   if (!data.length) {
     return (
       <Typography color="text.secondary">
@@ -57,16 +71,60 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
       .map((day) => day.label)
   );
 
-  const formatDate = (date: string) => {
+  const toUTCDate = (date: string) => {
     const [year, month, day] = date.split('-').map(Number);
 
-    return new Date(Date.UTC(year, month - 1, day))
-      .toLocaleDateString('en-US', {
-        day: '2-digit',
-        month: 'short',
-        timeZone: 'UTC',
-      });
+    return new Date(Date.UTC(year, month - 1, day));
   };
+
+  const formatDate = (date: string) =>
+    toUTCDate(date).toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      timeZone: 'UTC',
+    });
+
+  const formatFullDate = (date: string) =>
+    toUTCDate(date).toLocaleDateString('es-EC', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      timeZone: 'UTC',
+    });
+
+  const activePoint =
+    activeIndex !== null &&
+    activeIndex < data.length &&
+    topFiveDays.has(data[activeIndex].label)
+      ? data[activeIndex]
+      : null;
+
+  const tooltipDate = activePoint ? formatFullDate(activePoint.label) : '';
+  const tooltipCount = activePoint
+    ? `${activePoint.value.toLocaleString('es-EC')} sismos`
+    : '';
+
+  const tooltipWidth = activePoint
+    ? Math.ceil(
+        Math.max(
+          getApproxTextWidth(tooltipDate, 10),
+          getApproxTextWidth(tooltipCount, 9)
+        ) + tooltipPadding
+      )
+    : 0;
+
+  const tooltipX =
+    activeIndex !== null
+      ? Math.min(
+          Math.max(getX(activeIndex) - tooltipWidth / 2, margin.left),
+          width - margin.right - tooltipWidth
+        )
+      : 0;
+
+  const tooltipY =
+    activePoint && activeIndex !== null
+      ? Math.max(getY(activePoint.value) - tooltipHeight - 12, margin.top)
+      : 0;
 
   return (
     <Box sx={{ width: '100%', overflow: 'hidden' }}>
@@ -74,6 +132,7 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
         viewBox={`0 0 ${width} ${height}`}
         role="img"
         aria-label="Gráfico de sismos registrados por día"
+        onPointerDown={() => setActiveIndex(null)}
         style={{
           width: '100%',
           height: 'auto',
@@ -127,22 +186,84 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
         {data.map((d, i) => {
           if (!topFiveDays.has(d.label)) return null;
 
+          const x = getX(i);
+          const y = getY(d.value);
+
           return (
-            <circle
+            <g
               key={d.label}
-              cx={getX(i)}
-              cy={getY(d.value)}
-              r="4.5"
-              fill="#ffffff"
-              stroke="#14b8a6"
-              strokeWidth="2.5"
+              tabIndex={0}
+              aria-label={`${formatFullDate(d.label)}: ${d.value.toLocaleString('es-EC')} sismos`}
+              onPointerEnter={(event) => {
+                if (event.pointerType !== 'touch') setActiveIndex(i);
+              }}
+              onPointerLeave={(event) => {
+                if (event.pointerType !== 'touch') setActiveIndex(null);
+              }}
+              onPointerDown={(event) => {
+                event.stopPropagation();
+                setActiveIndex(i);
+              }}
+              onFocus={() => setActiveIndex(i)}
+              onBlur={() => setActiveIndex(null)}
+              style={{ cursor: 'pointer', outline: 'none' }}
             >
-              <title>
-                {`${formatDate(d.label)}: ${d.value.toLocaleString('es-EC')} sismos`}
-              </title>
-            </circle>
+              <circle
+                cx={x}
+                cy={y}
+                r="11"
+                fill="transparent"
+                pointerEvents="all"
+              />
+
+              <circle
+                cx={x}
+                cy={y}
+                r="4.5"
+                fill="#ffffff"
+                stroke="#14b8a6"
+                strokeWidth="2.5"
+                pointerEvents="none"
+              />
+            </g>
           );
         })}
+
+        {activePoint && (
+          <g pointerEvents="none">
+            <rect
+              x={tooltipX}
+              y={tooltipY}
+              width={tooltipWidth}
+              height={tooltipHeight}
+              rx="7"
+              fill="#6b7280"
+              opacity="0.72"
+            />
+
+            <text
+              x={tooltipX + tooltipWidth / 2}
+              y={tooltipY + 15}
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight="700"
+              fill="#ffffff"
+            >
+              {tooltipDate}
+            </text>
+
+            <text
+              x={tooltipX + tooltipWidth / 2}
+              y={tooltipY + 29}
+              textAnchor="middle"
+              fontSize="9"
+              fill="#ffffff"
+              opacity="0.85"
+            >
+              {tooltipCount}
+            </text>
+          </g>
+        )}
 
         {[...new Set(labelIndexes)].map((index) => (
           <text
@@ -194,8 +315,8 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
             textAlign: 'center',
           }}
         >
-          Los puntos destacan los 5 días con mayor cantidad de sismos
-          en el intervalo seleccionado.
+          Los puntos destacan los 5 días con mayor cantidad de sismos.
+          Pasa el cursor o toca un punto para ver la fecha.
         </Typography>
       </Box>
     </Box>

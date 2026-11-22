@@ -58,9 +58,11 @@ export default function DataTable({
     <Paper
       variant="outlined"
       sx={{
-        borderRadius: 3,
+        borderRadius: 1,
         overflow: 'hidden',
         bgcolor: '#ffffff',
+        borderColor: '#e9e3f2',
+        boxShadow: '0 6px 22px rgba(76, 29, 149, .05)',
       }}
     >
       {/* Tabla de registros */}
@@ -71,7 +73,7 @@ export default function DataTable({
           sx={{ minWidth: 790 }}
         >
           {/* Encabezado */}
-          <TableHead sx={{ bgcolor: '#0c2746' }}>
+          <TableHead sx={{ bgcolor: '#6d28d9' }}>
             <TableRow>
               {[
                 'Fecha (UTC)',
@@ -104,7 +106,7 @@ export default function DataTable({
                 hover
                 sx={{
                   '&:hover': {
-                    bgcolor: '#f1f5ff',
+                    bgcolor: '#f3edfd',
                   },
                 }}
               >
@@ -170,8 +172,8 @@ export default function DataTable({
       {/* Paginación */}
       <Box
         sx={{
-          borderTop: '1px solid #e5ebf3',
-          bgcolor: '#ffffff',
+          borderTop: '1px solid #e9e3f2',
+          bgcolor: '#fcfaff',
         }}
       >
         <TablePagination
@@ -187,18 +189,20 @@ export default function DataTable({
             `${from}–${to} de ${count.toLocaleString('es-EC')}`
           }
           sx={{
-            color: '#0c2746',
+            color: '#5b3a8f',
 
             '& .MuiTablePagination-selectLabel': {
               fontSize: '0.85rem',
+              fontWeight: 700,
             },
 
             '& .MuiTablePagination-displayedRows': {
               fontSize: '0.85rem',
+              fontWeight: 700,
             },
 
             '& .MuiTablePagination-actions': {
-              color: '#386bdf',
+              color: '#6d28d9',
             },
           }}
         />

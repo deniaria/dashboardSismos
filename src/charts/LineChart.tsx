@@ -23,7 +23,6 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = height - margin.top - margin.bottom;
 
-  // Escala vertical
   const maxValue = Math.max(...data.map((d) => d.value), 1);
   const step = Math.max(1, Math.ceil(maxValue / 4 / 25) * 25);
   const maxY = step * 4;
@@ -35,12 +34,10 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
   const getY = (value: number) =>
     margin.top + chartHeight - (value / maxY) * chartHeight;
 
-  // Coordenadas de la línea
   const points = data
     .map((d, i) => `${getX(i)},${getY(d.value)}`)
     .join(' ');
 
-  // Fechas distribuidas en el eje horizontal
   const labelIndexes = [
     0,
     Math.round((data.length - 1) * 0.25),
@@ -49,7 +46,6 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
     data.length - 1,
   ];
 
-  // Identificar los 5 días con mayor cantidad de sismos
   const topFiveDays = new Set(
     [...data]
       .sort(
@@ -61,7 +57,6 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
       .map((day) => day.label)
   );
 
-  // Formato de las fechas
   const formatDate = (date: string) => {
     const [year, month, day] = date.split('-').map(Number);
 
@@ -85,7 +80,6 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
           display: 'block',
         }}
       >
-        {/* Líneas horizontales y valores del eje Y */}
         {[0, 1, 2, 3, 4].map((i) => {
           const value = i * step;
           const y = getY(value);
@@ -97,7 +91,7 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
                 x2={width - margin.right}
                 y1={y}
                 y2={y}
-                stroke="#e5ebf3"
+                stroke="#e9e3f2"
                 strokeWidth="1"
               />
 
@@ -106,7 +100,8 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
                 y={y + 4}
                 textAnchor="end"
                 fontSize="11"
-                fill="#8190a5"
+                fontWeight="600"
+                fill="#8b83a3"
               >
                 {value}
               </text>
@@ -114,17 +109,21 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
           );
         })}
 
-        {/* Línea violeta de actividad sísmica */}
+        <polygon
+          points={`${margin.left},${margin.top + chartHeight} ${points} ${getX(data.length - 1)},${margin.top + chartHeight}`}
+          fill="#8b5cf6"
+          opacity="0.1"
+        />
+
         <polyline
           points={points}
           fill="none"
-          stroke="#6957f5"
+          stroke="#6d28d9"
           strokeWidth="3"
           strokeLinejoin="round"
           strokeLinecap="round"
         />
 
-        {/* Destacar los 5 días con más sismos */}
         {data.map((d, i) => {
           if (!topFiveDays.has(d.label)) return null;
 
@@ -135,7 +134,7 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
               cy={getY(d.value)}
               r="4.5"
               fill="#ffffff"
-              stroke="#6957f5"
+              stroke="#14b8a6"
               strokeWidth="2.5"
             >
               <title>
@@ -145,7 +144,6 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
           );
         })}
 
-        {/* Fechas del eje X */}
         {[...new Set(labelIndexes)].map((index) => (
           <text
             key={index}
@@ -159,14 +157,14 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
                 : 'middle'
             }
             fontSize="11"
-            fill="#8190a5"
+            fontWeight="600"
+            fill="#8b83a3"
           >
             {formatDate(data[index].label)}
           </text>
         ))}
       </svg>
 
-      {/* Leyenda explicativa */}
       <Box
         sx={{
           display: 'flex',
@@ -183,7 +181,7 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
             height: 10,
             borderRadius: '50%',
             bgcolor: '#ffffff',
-            border: '2px solid #6957f5',
+            border: '2px solid #14b8a6',
             flexShrink: 0,
           }}
         />
@@ -191,7 +189,7 @@ export default function LineChart({ data }: { data: ChartPoint[] }) {
         <Typography
           variant="caption"
           sx={{
-            color: '#65758b',
+            color: '#7c7391',
             fontSize: { xs: '0.65rem', sm: '0.75rem' },
             textAlign: 'center',
           }}

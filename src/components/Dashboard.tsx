@@ -50,17 +50,23 @@ export default function Dashboard() {
   const depths = useMemo(() => getDepthCounts(filtered), [filtered]);
   const formatted = (v: number) => v.toLocaleString('es-EC');
 
-  return <Box minHeight="100vh" bgcolor="#f5f7fc">
+  return <Box minHeight="100vh" bgcolor="#f7f5fc">
     <Header title="SISMO DATA" />
     <Container maxWidth="xl" sx={{ py: { xs: 2, md: 3 } }}>
       <Navbar items={[{ label: 'Indicadores', href: '#indicadores' }, { label: 'Mapa', href: '#mapa' }, { label: 'Gráficos', href: '#graficos' }, { label: 'Registros', href: '#registros' }]} />
-      <Typography variant="h5" fontWeight={800} color="#0c2746" sx={{ my: 2 }}>Actividad sísmica mundial</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1, my: 2 }}>
+        <Box>
+          <Typography variant="h5" fontWeight={800} sx={{ color: '#3b0764' }}>Actividad sísmica mundial</Typography>
+          <Box sx={{ width: 64, height: 4, borderRadius: 1, mt: 0.75, background: 'linear-gradient(90deg, #a78bfa 0%, #c026d3 50%, #14b8a6 100%)' }} />
+        </Box>
+        <Typography variant="caption" sx={{ color: '#8b83a3', fontWeight: 700, letterSpacing: 0.6 }}>FEED USGS · ÚLTIMO MES</Typography>
+      </Box>
       {error && <Alert severity="error" sx={{ mb: 2 }}>No se pudo cargar data/all_month.json: {error}. Verifica que estés ejecutando desde la raíz del repositorio.</Alert>}
       {loading ? <Box display="flex" justifyContent="center" py={8}><CircularProgress /></Box> : !error && <>
         <Box id="indicadores" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))' }, gap: 2, mb: 2 }}>
-          <KPICard title="Total de sismos" value={formatted(kpis.total)} unit="eventos" />
-          <KPICard title="Magnitud máxima" value={kpis.maxMag === null ? '—' : kpis.maxMag.toFixed(1)} unit="" />
-          <KPICard title="Profundidad promedio" value={kpis.avgDepth === null ? '—' : kpis.avgDepth.toFixed(2)} unit="km" />
+          <KPICard title="Total de sismos" value={formatted(kpis.total)} unit="eventos" accent="#6d28d9" tint="#f3edfd" />
+          <KPICard title="Magnitud máxima" value={kpis.maxMag === null ? '—' : kpis.maxMag.toFixed(1)} unit="" accent="#a21caf" tint="#fbeafb" />
+          <KPICard title="Profundidad promedio" value={kpis.avgDepth === null ? '—' : kpis.avgDepth.toFixed(2)} unit="km" accent="#0f766e" tint="#e6f7f2" />
         </Box>
         <Box sx={{ mb: 2 }}><FilterPanel dateRange={dateRange} magnitudeRange={magnitudeRange}
           onDateChange={setDateRange} onMagnitudeChange={setMagnitudeRange}
@@ -68,12 +74,12 @@ export default function Dashboard() {
           onReset={() => { const dates = earthquakes.map((e) => e.time?.slice(0, 10)).filter((v): v is string => Boolean(v)).sort(); setDateRange({ start: dates[0] ?? '', end: dates[dates.length - 1] ?? '' }); setMagnitudeRange(defaults); }} />
         </Box>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }, gap: 2, mb: 2 }}>
-          <Box id="mapa"><ChartContainer title="Epicentros · coordenadas USGS"><EarthquakeMap earthquakes={filtered} /></ChartContainer></Box>
-          <Box id="graficos"><ChartContainer title="Sismos registrados por día"><LineChart data={daily} /></ChartContainer></Box>
-          <ChartContainer title="Distribución por magnitud"><BarChart data={magnitudes} /></ChartContainer>
-          <ChartContainer title="Sismos por profundidad"><ColumnChart data={depths} /></ChartContainer>
+          <Box id="mapa"><ChartContainer title="Epicentros · coordenadas USGS" accent="#0f766e"><EarthquakeMap earthquakes={filtered} /></ChartContainer></Box>
+          <Box id="graficos"><ChartContainer title="Sismos registrados por día" accent="#a21caf"><LineChart data={daily} /></ChartContainer></Box>
+          <ChartContainer title="Distribución por magnitud" accent="#6d28d9"><BarChart data={magnitudes} /></ChartContainer>
+          <ChartContainer title="Sismos por profundidad" accent="#14b8a6"><ColumnChart data={depths} /></ChartContainer>
         </Box>
-        <Box id="registros"><Typography variant="h6" fontWeight={800} sx={{ mb: 1 }}>Registros originales del USGS</Typography><DataTable records={filtered} /></Box>
+        <Box id="registros"><Typography variant="h6" fontWeight={800} sx={{ mb: 1, color: '#3b0764' }}>Registros originales del USGS</Typography><DataTable records={filtered} /></Box>
       </>}
     </Container>
   </Box>;

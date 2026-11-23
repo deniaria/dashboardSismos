@@ -1,3 +1,4 @@
+import { getEarthquakes } from "../firebase/earthquakeService";
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Box, CircularProgress, Container, Typography } from '@mui/material';
 import Header from './Header';
@@ -23,19 +24,50 @@ export default function Dashboard() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`${import.meta.env.BASE_URL}all_month.json`)
-      .then((response) => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); })
-      .then((json: unknown) => {
-        if (!Array.isArray(json)) throw new Error('El archivo JSON debe contener un arreglo.');
+
+    async function loadEarthquakes() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const records = await getEarthquakes();
+
         if (cancelled) return;
-        const records = json as Earthquake[];
+
         setEarthquakes(records);
-        const dates = records.map((e) => e.time?.slice(0, 10)).filter((v): v is string => Boolean(v)).sort();
-        if (dates.length) setDateRange({ start: dates[0], end: dates[dates.length - 1] });
-      })
-      .catch((err: unknown) => { if (!cancelled) setError(err instanceof Error ? err.message : String(err)); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+
+        const dates = records
+          .map((e) => e.time?.slice(0, 10))
+          .filter((v): v is string => Boolean(v))
+          .sort();
+
+        if (dates.length > 0) {
+          setDateRange({
+            start: dates[0],
+            end: dates[dates.length - 1],
+          });
+        }
+
+      } catch (err: unknown) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Error al consultar Firebase"
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadEarthquakes();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filtered = useMemo(() => earthquakes.filter((e) => {

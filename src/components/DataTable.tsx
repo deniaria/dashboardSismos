@@ -73,7 +73,7 @@ export default function DataTable({
           sx={{ minWidth: 790 }}
         >
           {/* Encabezado */}
-          <TableHead sx={{ bgcolor: '#6d28d9' }}>
+          <TableHead sx={{ bgcolor: '#4c1d95' }}>
             <TableRow>
               {[
                 'Fecha (UTC)',

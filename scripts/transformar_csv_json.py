@@ -86,6 +86,7 @@ def main():
         raise ValueError('Errores de validación:\n' + '\n'.join(errors[:30]))
 
     JSON_PATH.write_text(json.dumps(records, ensure_ascii=False, indent=2, allow_nan=False) + '\n', encoding='utf-8')
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     loaded = json.loads(JSON_PATH.read_text(encoding='utf-8'))
     assert len(loaded) == len(records)
     assert all(set(r) == set(fields) for r in loaded)
